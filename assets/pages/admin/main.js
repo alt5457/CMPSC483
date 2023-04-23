@@ -28,6 +28,8 @@ async function update_csv(){
     return response.text();
 }
 
+var has_data = 0;
+
 function csv_string_to_table(csv_string, element_to_insert_table) {
     var rows = csv_string.trim().split(/\r?\n|\r/); // Regex to split/separate the CSV rows
     var table = '';
@@ -73,6 +75,7 @@ function dropHandler(ev, zone) {
             if (item.kind === "file") {
                 const file = item.getAsFile();
                 if (file.name === "studentAssignments.csv") {
+                    has_data = 1;
                     send_csv(file).then(() => {
                         update_csv().then((response) => {
                             csv_string_to_table(response, document.getElementById("current-assignments-table"));
@@ -125,5 +128,34 @@ const actualBtn = document.getElementById('actual-btn');
 actualBtn.addEventListener('change', function () {
     [...this.files].forEach((file, i) => {
         console.log(`… file[${i}].name = ${file.name}`);
+        if (file.name === "studentAssignments.csv") {
+            has_data = 1;
+            send_csv(file).then(() => {
+                update_csv().then((response) => {
+                    csv_string_to_table(response, document.getElementById("current-assignments-table"));
+                    console.log(response);
+                });
+            });
+        } else {
+            alert("Please upload the studentAssignments.csv file");
+        }
     });
+})
+
+const exportBtn = document.getElementById("export_button");
+exportBtn.addEventListener("click", function () {
+    if (!has_data) {
+        alert("Please upload the studentAssignments.csv file");
+    } else {
+        has_data = 0;
+        fetch("/add_assignments")
+        .then(response => response.text())
+        .then(data => {
+            if (data === 'true') {
+              alert("Upload success!");
+            } else {
+              alert("Upload failed, please try again");
+            }
+        });
+    }
 })

@@ -80,6 +80,8 @@
         "__verbose_abort": "cpp",
         "thread": "cpp",
         "algorithm": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "any": "cpp",
+        "valarray": "cpp"
     }
 }

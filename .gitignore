@@ -5,3 +5,5 @@ output/*
 tools
 example.db
 .idea
+.DS_Store
+learningfactory.db

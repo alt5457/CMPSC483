@@ -84,9 +84,6 @@ json &ProjectDataHandler::projectsJson() {
         return m_projects_json;
 }
 
-StudentDataHandler::StudentDataHandler(const char *csv_filepath) noexcept {
-        parse(csv_filepath);
-}
 void StudentDataHandler::parse(const char *csv_filepath) noexcept {
         auto students = rapidcsv::Document(csv_filepath, rapidcsv::LabelParams(0, -1));
         
@@ -109,9 +106,9 @@ void StudentDataHandler::parse(const char *csv_filepath) noexcept {
         
         for (const auto& str : on_campus){
                 if (str == "Yes")
-                        on_campus_bools.push_back("Yes");
+                        on_campus_bools.push_back(true);
                 else
-                        on_campus_bools.push_back("No");
+                        on_campus_bools.push_back(false);
         }
         
         std::unordered_map<std::string, std::vector<std::string>> project_students_map;
@@ -155,9 +152,9 @@ void StudentDataHandler::parse(const std::string &body) noexcept {
         
         for (const auto &str : on_campus){
                 if (str == "Yes")
-                        on_campus_bools.push_back("Yes");
+                        on_campus_bools.push_back(true);
                 else
-                        on_campus_bools.push_back("No");
+                        on_campus_bools.push_back(false);
         }
         
         std::unordered_map<std::string, std::vector<std::string>> project_students_map;
@@ -240,10 +237,10 @@ std::string CsvHandler::simple_format() {
                         ret += instructor_projects_pair.first + "," + m_project_data.projectsMap()[project_id].m_project_title;
                         ret += ",{";
                         for (const auto& student_id : (m_student_data.projectStudentsMap())[project_id]){
-                                std::cout << student_id << "\n";
+                                // std::cout << student_id << "\n";
                                 ret += m_student_data.studentsMap()[student_id].m_first_name + " " + m_student_data.studentsMap()[student_id].m_last_name + "(" + student_id + ")" + "     ";
                         }
-                        std::cout << "\n";
+                        // std::cout << "\n";
                         ret += "}\n";
                 }
         }

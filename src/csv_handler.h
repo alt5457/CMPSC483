@@ -84,7 +84,7 @@ private:
 
 class StudentDataHandler {
 public:
-        explicit StudentDataHandler(const char *csv_filepath) noexcept;
+        explicit StudentDataHandler() noexcept {}
         ~StudentDataHandler() = default;
         
 public:

@@ -2,22 +2,23 @@
 #include <unordered_map>
 #include "csv_handler.h"
 #include "json.hpp"
+#include "database_helper.h"
 using json = nlohmann::json;
-
 
 const char *HOST = "localhost";
 const int32_t PORT = 8080;
 
 
 int main() {
+        DatabaseHelper db = DatabaseHelper("learningfactory.db");
+        db.createAssignmentsTable();
+        db.createStudentsTable();
+        db.addStudents("assets/data/studentsFinal.csv");
+
         auto project_data    = ProjectDataHandler("assets/data/projectsFinal.csv");
-        auto student_data    = StudentDataHandler("assets/data/studentAssignments.csv");
+        auto assignment_data    = StudentDataHandler();
         auto instructor_data = InstructorDataHandler("assets/data/sectionInfo.csv");
-        CsvHandler handler   = CsvHandler(project_data, student_data, instructor_data);
-        
-        std::cout << handler.simple_format() << "\n";
-        
-        
+        CsvHandler handler   = CsvHandler(project_data, assignment_data, instructor_data);
         
         const char *SUPER_SECRET_NUMBER = "780375235";
         
@@ -59,10 +60,35 @@ int main() {
                         json data = handler.instructorData().projectsInstructorMapJson();
                         res.set_header("Content-Type", "text/json");
                         res.set_content(data.dump(), "text/json");
+                })
+                ->get("/add_assignments", REQ_RES {
+                        try {
+                            db.addAssignments(assignment_data.studentsMap());
+                            res.set_content("true", "text/plain");
+                        } catch (...) {
+                            res.set_content("false", "text/plain");
+                        }
+                })
+                ->get("/students_under_project", REQ_RES {
+                    std::string projectID = req.get_param_value("projectID");
+                    json data = db.getStudentsUnderProject(projectID.c_str());
+                    res.set_header("Content-Type", "text/json");
+                    res.set_content(data.dump(), "text/json");
+                })
+                ->get("/assignments", REQ_RES {
+                    json data = db.getAssignments();
+                    res.set_header("Content-Type", "text/json");
+                    res.set_content(data.dump(), "text/json");
                 });
         
         server->post("/csv", REQ_RES {
-                student_data.parse(req.body);
+                assignment_data.parse(req.body);
+                auto myMap = assignment_data.studentsMap();
+                std::cout << "---------- studentsMap START ----------" << std::endl;
+                for(auto iter = myMap.begin(); iter != myMap.end(); ++iter) {
+                        std::cout << iter->first << std::endl;
+                }
+                std::cout << "---------- studentsMap END ----------" << std::endl;
         });
         
         
